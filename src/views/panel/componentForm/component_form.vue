@@ -45,7 +45,6 @@
                        @click="save">保存</el-button>
           </el-form-item>
         </el-form>
-
         <el-form :model="line"
                  ref="dataForm"
                  label-width="80px"
@@ -97,10 +96,10 @@ export default {
   },
   methods: {
     /**
-             * 表单修改，这里可以根据传入的ID进行业务信息获取
-             * @param data
-             * @param id
-             */
+     * 表单修改，这里可以根据传入的ID进行业务信息获取
+     * @param data
+     * @param id
+     */
     nodeInit (data, id) {
       this.type = 'node'
       this.data = data

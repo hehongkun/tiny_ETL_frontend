@@ -7,7 +7,7 @@
         <div class="ef-tooltar">
           <div style="float:left">
             <el-tag type="primary"
-                    :underline="false">{{data.name}}</el-tag>
+                    :underline="false">{{hasTaskInfo ? data.name : "null"}}</el-tag>
             <el-divider direction="vertical"></el-divider>
             <el-button type="text"
                        icon="el-icon-delete"
@@ -19,44 +19,12 @@
                        icon="el-icon-download"
                        size="large"
                        @click="downloadData"></el-button>
-          </div>
-          <div style="float: right;margin-right: 5px">
             <el-button type="info"
                        plain
                        round
                        icon="el-icon-document"
                        @click="dataInfo"
                        size="mini">流程信息</el-button>
-            <el-button type="primary"
-                       plain
-                       round
-                       @click="dataReloadA"
-                       icon="el-icon-refresh"
-                       size="mini">切换流程A</el-button>
-            <el-button type="primary"
-                       plain
-                       round
-                       @click="dataReloadB"
-                       icon="el-icon-refresh"
-                       size="mini">切换流程B</el-button>
-            <el-button type="primary"
-                       plain
-                       round
-                       @click="dataReloadC"
-                       icon="el-icon-refresh"
-                       size="mini">切换流程C</el-button>
-            <el-button type="primary"
-                       plain
-                       round
-                       @click="dataReloadD"
-                       icon="el-icon-refresh"
-                       size="mini">自定义样式</el-button>
-            <el-button type="primary"
-                       plain
-                       round
-                       @click="dataReloadE"
-                       icon="el-icon-refresh"
-                       size="mini">力导图</el-button>
             <el-button type="info"
                        plain
                        round
@@ -64,46 +32,81 @@
                        @click="openHelp"
                        size="mini">帮助</el-button>
           </div>
+          <template>
+            <div style="float: right;margin-right: 5px"
+                 v-for="task in taskInfo"
+                 :key="task.id">
+              <el-button key=task.id
+                         type="primary"
+                         plain
+                         round
+                         @click="loadData(task)"
+                         @dblclick.native="ediTaskInfo(task)"
+                         icon="el-icon-refresh"
+                         size="mini">{{ task.name }}</el-button>
+            </div>
+          </template>
+          <div style="float: right;margin-right: 5px">
+            <el-button icon="el-icon-circle-plus"
+                       circle
+                       @click="addTask"></el-button>
+            <el-button type="primary"
+                       plain
+                       round
+                       icon="el-icon-document"
+                       @click="openHelp"
+                       size="mini">文件库</el-button>
+          </div>
         </div>
       </el-col>
     </el-row>
-    <div style="display: flex;height: calc(100% - 47px);">
-      <div style="width: 230px;border-right: 1px solid #dce3e8;">
-        <node-menu @addNode="addNode"
-                   ref="nodeMenu"></node-menu>
-      </div>
-      <div id="efContainer"
-           ref="efContainer"
-           class="container"
-           v-flowDrag>
-        <template v-for="node in data.nodeList">
-          <flow-node :id="node.id"
-                     :key="node.id"
-                     :node="node"
-                     :activeElement="activeElement"
-                     @changeNodeSite="changeNodeSite"
-                     @nodeRightMenu="nodeRightMenu"
-                     @clickNode="clickNode">
-          </flow-node>
-        </template>
-        <!-- 给画布一个默认的宽度和高度 -->
-        <div style="position:absolute;top: 2000px;left: 2000px;">&nbsp;</div>
-      </div>
-      <!-- 右侧表单 -->
-      <div v-show="nodeFormShow"
-           style="width: 300px;border-left: 1px solid #dce3e8;background-color: #FBFBFB">
-        <flow-node-form ref="nodeForm"
-                        @setLineLabel="setLineLabel"
-                        @repaintEverything="repaintEverything"
-                        @closeNodeForm="closeNodeForm"></flow-node-form>
+    <div v-if="!hasTaskInfo">
+      <el-empty description="请先选择一个任务或创建一个任务"></el-empty>
+    </div>
+    <div v-else>
+      <el-empty description="描述文字"></el-empty>
+      <div style="display: flex;height: calc(100% - 47px);">
+        <div style="width: 230px;border-right: 1px solid #dce3e8;">
+          <node-menu @addNode="addNode"
+                     ref="nodeMenu"></node-menu>
+        </div>
+        <div id="efContainer"
+             ref="efContainer"
+             class="container"
+             v-flowDrag>
+          <template v-for="node in data.nodeList">
+            <flow-node :id="node.id"
+                       :key="node.id"
+                       :node="node"
+                       :activeElement="activeElement"
+                       @changeNodeSite="changeNodeSite"
+                       @nodeRightMenu="nodeRightMenu"
+                       @clickNode="clickNode">
+            </flow-node>
+          </template>
+          <!-- 给画布一个默认的宽度和高度 -->
+          <div style="position:absolute;top: 2000px;left: 2000px;">&nbsp;</div>
+        </div>
+        <!-- 组件参数配置框 -->
+        <el-dialog :visible.sync="nodeFormShow"
+                   style="height:100vh">
+          <flow-node-form ref="nodeForm"
+                          @setLineLabel="setLineLabel"
+                          @repaintEverything="repaintEverything"
+                          @closeNodeForm="closeNodeForm"></flow-node-form>
+        </el-dialog>
       </div>
     </div>
     <!-- 流程数据详情 -->
-    <flow-info v-if="flowInfoVisible"
-               ref="flowInfo"
-               :data="data"></flow-info>
-    <flow-help v-if="flowHelpVisible"
-               ref="flowHelp"></flow-help>
+    <task-data v-if="flowInfoVisible"
+               ref="taskInfo"
+               :data="data">
+    </task-data>
+    <task-help v-if="flowHelpVisible"
+               ref="taskHelp"></task-help>
+    <task-form v-if="taskFormVisible"
+               ref="taskForm"
+               @createTask="getTaskList"></task-form>
   </div>
 
 </template>
@@ -112,25 +115,26 @@
 import draggable from 'vuedraggable'
 // import { jsPlumb } from 'jsplumb'
 // 使用修改后的jsplumb
-import './jsplumb'
-import { easyFlowMixin } from '@/views/ef/mixins'
-import flowNode from '@/views/ef/node'
-import nodeMenu from '@/views/ef/node_menu'
-import FlowInfo from '@/views/ef/info'
-import FlowHelp from '@/views/ef/help'
-import FlowNodeForm from './node_form'
+import './js/jsplumb'
+import { easyFlowMixin } from '@/views/panel/js/mixins'
+import flowNode from '@/views/panel/node'
+import nodeMenu from '@/views/panel/componentMenu/component_menu'
+import TaskData from '@/views/panel/taskData/task_data'
+import TaskHelp from '@/views/panel/help/help'
+import FlowNodeForm from '@/views/panel/componentForm/component_form'
 import lodash from 'lodash'
-import { getDataA } from './data_A'
-import { getDataB } from './data_B'
-import { getDataC } from './data_C'
-import { getDataD } from './data_D'
-import { getDataE } from './data_E'
-import { ForceDirected } from './force-directed'
+import TaskForm from '@/views/panel/taskForm/task_form'
+// eslint-disable-next-line no-unused-vars
+import { ForceDirected } from './js/force-directed'
+import { getAction } from '@/api/manage'
 
 export default {
   name: 'panel',
   data () {
     return {
+      // 当前页面是否已经有任务信息
+      hasTaskInfo: false,
+      // 组件参数配置会话框是否显示
       nodeFormShow: false,
       // jsPlumb 实例
       jsPlumb: null,
@@ -140,7 +144,10 @@ export default {
       flowInfoVisible: false,
       // 是否加载完毕标志位
       loadEasyFlowFinish: false,
+      // etl任务信息
+      taskInfo: [],
       flowHelpVisible: false,
+      taskFormVisible: false,
       // 数据
       data: {},
       // 激活的元素、可能是节点、可能是连线
@@ -159,7 +166,7 @@ export default {
   // 一些基础配置移动该文件中
   mixins: [easyFlowMixin],
   components: {
-    draggable, flowNode, nodeMenu, FlowInfo, FlowNodeForm, FlowHelp
+    draggable, flowNode, nodeMenu, TaskData, FlowNodeForm, TaskHelp, TaskForm
   },
   directives: {
     'flowDrag': {
@@ -201,12 +208,19 @@ export default {
   mounted () {
     // eslint-disable-next-line no-undef
     this.jsPlumb = jsPlumb.getInstance()
-    this.$nextTick(() => {
-      // 默认加载流程A的数据、在这里可以根据具体的业务返回符合流程数据格式的数据即可
-      this.dataReload(getDataB())
-    })
+    this.getTaskList()
   },
   methods: {
+    ediTaskInfo () {
+      console.log(2222)
+    },
+    getTaskList () {
+      this.taskFormVisible = false
+      getAction('/task/getalltasklist').then((res) => {
+        this.taskInfo.splice(0, this.taskInfo.length)
+        this.taskInfo = res.data
+      })
+    },
     closeNodeForm () {
       this.nodeFormShow = false
     },
@@ -485,8 +499,10 @@ export default {
     clickNode (nodeId) {
       this.activeElement.type = 'node'
       this.activeElement.nodeId = nodeId
-      this.$refs.nodeForm.nodeInit(this.data, nodeId)
       this.nodeFormShow = true
+      this.$nextTick(() => {
+        this.$refs.nodeForm.nodeInit(this.data, nodeId)
+      })
     },
     // 是否具有该线
     hasLine (from, to) {
@@ -513,9 +529,10 @@ export default {
     },
     // 流程数据信息
     dataInfo () {
+      console.log(1111)
       this.flowInfoVisible = true
       this.$nextTick(function () {
-        this.$refs.flowInfo.init()
+        this.$refs.taskInfo.init()
       })
     },
     // 加载流程图
@@ -536,31 +553,11 @@ export default {
         })
       })
     },
-    // 模拟载入数据dataA
-    dataReloadA () {
-      this.dataReload(getDataA())
-    },
-    // 模拟载入数据dataB
-    dataReloadB () {
-      this.dataReload(getDataB())
-    },
-    // 模拟载入数据dataC
-    dataReloadC () {
-      this.dataReload(getDataC())
-    },
-    // 模拟载入数据dataD
-    dataReloadD () {
-      this.dataReload(getDataD())
-    },
-    // 模拟加载数据dataE，自适应创建坐标
-    dataReloadE () {
-      let dataE = getDataE()
-      let tempData = lodash.cloneDeep(dataE)
-      let data = ForceDirected(tempData)
-      this.dataReload(data)
-      this.$message({
-        message: '力导图每次产生的布局是不一样的',
-        type: 'warning'
+    // 创建一个新的转换任务
+    addTask () {
+      this.taskFormVisible = true
+      this.$nextTick(() => {
+        this.$refs.taskForm.dialogVisible = true
       })
     },
     zoomAdd () {
@@ -600,7 +597,7 @@ export default {
     openHelp () {
       this.flowHelpVisible = true
       this.$nextTick(function () {
-        this.$refs.flowHelp.init()
+        this.$refs.taskHelp.init()
       })
     }
   }

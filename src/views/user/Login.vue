@@ -58,9 +58,7 @@ export default {
             'username': this.loginForm.loginName,
             'password': this.loginForm.loginPassword
           }
-          console.log(params)
           postAction('/user/login', params).then((res) => {
-            console.log(res)
             if (res.data.success) {
               // 登录成功，跳转页面
               localStorage.setItem('token', res.data.token)
