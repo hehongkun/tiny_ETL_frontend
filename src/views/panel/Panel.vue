@@ -35,21 +35,23 @@
           <template>
             <div style="float: right;margin-right: 5px"
                  v-for="task in taskInfo"
-                 :key="task.id">
-              <el-button key=task.id
+                 :key="task.Id">
+              <el-button key=task.Id
                          type="primary"
                          plain
                          round
                          @click="loadData(task)"
                          @dblclick.native="ediTaskInfo(task)"
                          icon="el-icon-refresh"
-                         size="mini">{{ task.name }}</el-button>
+                         size="mini">{{ task.Name }}</el-button>
             </div>
           </template>
           <div style="float: right;margin-right: 5px">
             <el-button icon="el-icon-circle-plus"
-                       circle
-                       @click="addTask"></el-button>
+                       plain
+                       type="primary"
+                       round
+                       @click="addTask">新建任务</el-button>
             <el-button type="primary"
                        plain
                        round
@@ -60,42 +62,41 @@
         </div>
       </el-col>
     </el-row>
-    <div v-if="!hasTaskInfo">
+    <!-- <div v-if="!hasTaskInfo">
       <el-empty description="请先选择一个任务或创建一个任务"></el-empty>
-    </div>
-    <div v-else>
-      <el-empty description="描述文字"></el-empty>
-      <div style="display: flex;height: calc(100% - 47px);">
-        <div style="width: 230px;border-right: 1px solid #dce3e8;">
-          <node-menu @addNode="addNode"
-                     ref="nodeMenu"></node-menu>
-        </div>
-        <div id="efContainer"
-             ref="efContainer"
-             class="container"
-             v-flowDrag>
-          <template v-for="node in data.nodeList">
-            <flow-node :id="node.id"
-                       :key="node.id"
-                       :node="node"
-                       :activeElement="activeElement"
-                       @changeNodeSite="changeNodeSite"
-                       @nodeRightMenu="nodeRightMenu"
-                       @clickNode="clickNode">
-            </flow-node>
-          </template>
-          <!-- 给画布一个默认的宽度和高度 -->
-          <div style="position:absolute;top: 2000px;left: 2000px;">&nbsp;</div>
-        </div>
-        <!-- 组件参数配置框 -->
-        <el-dialog :visible.sync="nodeFormShow"
-                   style="height:100vh">
-          <flow-node-form ref="nodeForm"
-                          @setLineLabel="setLineLabel"
-                          @repaintEverything="repaintEverything"
-                          @closeNodeForm="closeNodeForm"></flow-node-form>
-        </el-dialog>
+    </div> -->
+    <!-- <div v-else> -->
+    <div style="display: flex;height: calc(100vh - 47px);">
+      <div style="width: 230px;border-right: 1px solid #dce3e8;">
+        <node-menu @addNode="addNode"
+                   ref="nodeMenu"></node-menu>
       </div>
+      <div id="efContainer"
+           ref="efContainer"
+           class="container"
+           v-flowDrag>
+        <template v-for="node in data.nodeList">
+          <flow-node :id="node.id"
+                     :key="node.id"
+                     :node="node"
+                     :activeElement="activeElement"
+                     @changeNodeSite="changeNodeSite"
+                     @nodeRightMenu="nodeRightMenu"
+                     @clickNode="clickNode">
+          </flow-node>
+        </template>
+        <!-- 给画布一个默认的宽度和高度 -->
+        <div style="position:absolute;top: 2000px;left: 2000px;">&nbsp;</div>
+      </div>
+      <!-- 组件参数配置框 -->
+      <el-dialog :visible.sync="nodeFormShow"
+                 style="height:100vh">
+        <flow-node-form ref="nodeForm"
+                        @setLineLabel="setLineLabel"
+                        @repaintEverything="repaintEverything"
+                        @closeNodeForm="closeNodeForm"></flow-node-form>
+      </el-dialog>
+      <!-- </div> -->
     </div>
     <!-- 流程数据详情 -->
     <task-data v-if="flowInfoVisible"
@@ -106,7 +107,7 @@
                ref="taskHelp"></task-help>
     <task-form v-if="taskFormVisible"
                ref="taskForm"
-               @createTask="getTaskList"></task-form>
+               @createTask="createTask($event)"></task-form>
   </div>
 
 </template>
@@ -218,6 +219,9 @@ export default {
       this.taskFormVisible = false
       getAction('/task/getalltasklist').then((res) => {
         this.taskInfo.splice(0, this.taskInfo.length)
+        for (var task of res.data) {
+          task['Running'] = false // 一开始所有任务的执行状态都是false
+        }
         this.taskInfo = res.data
       })
     },
@@ -227,6 +231,16 @@ export default {
     // 返回唯一标识
     getUUID () {
       return Math.random().toString(36).substr(3, 10)
+    },
+    createTask (task) {
+      this.taskFormVisible = false
+      task['Running'] = false
+      this.taskInfo.splice(0, 0, task)
+      this.data = JSON.parse(this.taskInfo[0].Data)
+      this.hasTaskInfo = true
+      this.$nextTick(() => {
+        this.dataReload(this.data)
+      })
     },
     jsPlumbInit () {
       this.jsPlumb.ready(() => {
@@ -452,8 +466,8 @@ export default {
         state: 'success'
       }
       /**
-                 * 这里可以进行业务判断、是否能够添加该节点
-                 */
+       * 这里可以进行业务判断、是否能够添加该节点
+       */
       this.data.nodeList.push(node)
       this.$nextTick(function () {
         this.jsPlumb.makeSource(nodeId, this.jsplumbSourceOptions)
@@ -525,11 +539,11 @@ export default {
       this.menu.top = evt.y + 'px'
     },
     repaintEverything () {
+      this.nodeFormShow = false
       this.jsPlumb.repaint()
     },
     // 流程数据信息
     dataInfo () {
-      console.log(1111)
       this.flowInfoVisible = true
       this.$nextTick(function () {
         this.$refs.taskInfo.init()
@@ -558,6 +572,13 @@ export default {
       this.taskFormVisible = true
       this.$nextTick(() => {
         this.$refs.taskForm.dialogVisible = true
+      })
+    },
+    loadData (task) {
+      this.data = JSON.parse(task.Data)
+      this.hasTaskInfo = true
+      this.$nextTick(() => {
+        this.dataReload(this.data)
       })
     },
     zoomAdd () {

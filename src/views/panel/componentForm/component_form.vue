@@ -39,7 +39,7 @@
           </el-form-item>
           <el-form-item>
             <el-button icon="el-icon-close"
-                       @click="closeNodeForm">隐藏</el-button>
+                       @click="closeNodeForm">取消</el-button>
             <el-button type="primary"
                        icon="el-icon-check"
                        @click="save">保存</el-button>
@@ -121,6 +121,7 @@ export default {
       this.$emit('setLineLabel', this.line.from, this.line.to, this.line.label)
     },
     save () {
+      this.visible = false
       this.data.nodeList.filter((node) => {
         if (node.id === this.node.id) {
           node.name = this.node.name

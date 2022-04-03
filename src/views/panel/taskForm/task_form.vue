@@ -37,7 +37,11 @@ export default {
     return {
       dialogVisible: false,
       task: {
-        name: ''
+        name: '',
+        data: {
+          nodeList: [],
+          lineList: []
+        }
       },
       rules: {
         name: [{ required: true, message: '请输入任务名称', trigger: 'blur' }]
@@ -54,6 +58,9 @@ export default {
     saveTask () {
       this.$refs['taskForm'].validate((valid) => {
         if (valid) {
+          this.task.data.name = this.task.name
+          this.task.data = JSON.stringify(this.task.data)
+          console.log(this.task.data)
           postAction('/task/add', this.task).then((res) => {
             console.log(res)
             if (res.data.success) {
@@ -62,7 +69,7 @@ export default {
                 type: 'success'
               })
               this.dialogVisible = false
-              this.$emit('createTask')
+              this.$emit('createTask', res.data.data)
             } else {
               this.$message.error('创建失败')
             }
