@@ -1,16 +1,26 @@
 <template>
-    <div class="flow-menu" ref="tool">
-        <div v-for="menu  in  menuList" :key="menu.id">
-            <span class="ef-node-pmenu" @click="menu.open = !menu.open"><i :class="{'el-icon-caret-bottom': menu.open,'el-icon-caret-right': !menu.open}"></i>&nbsp;{{menu.name}}</span>
-            <ul v-show="menu.open" class="ef-node-menu-ul">
-                <draggable @end="end" @start="move" v-model="menu.children" :options="draggableOptions">
-                    <li v-for="subMenu in menu.children" class="ef-node-menu-li" :key="subMenu.id" :type="subMenu.type">
-                        <i :class="subMenu.ico"></i> {{subMenu.name}}
-                    </li>
-                </draggable>
-            </ul>
-        </div>
+  <div class="flow-menu"
+       ref="tool">
+    <div v-for="menu  in  menuList"
+         :key="menu.id">
+      <span class="ef-node-pmenu"
+            @click="menu.open = !menu.open"><i :class="{'el-icon-caret-bottom': menu.open,'el-icon-caret-right': !menu.open}"></i>&nbsp;{{menu.name}}</span>
+      <ul v-show="menu.open"
+          class="ef-node-menu-ul">
+        <draggable @end="end"
+                   @start="move"
+                   v-model="menu.children"
+                   :options="draggableOptions">
+          <li v-for="subMenu in menu.children"
+              class="ef-node-menu-li"
+              :key="subMenu.id"
+              :type="subMenu.type">
+            <i :class="subMenu.ico"></i> {{subMenu.name}}
+          </li>
+        </draggable>
+      </ul>
     </div>
+  </div>
 </template>
 <script>
 import draggable from 'vuedraggable'
@@ -39,33 +49,26 @@ export default {
       defaultOpeneds: ['1', '2'],
       menuList: [
         {
-          id: '1',
+          id: 'data input',
           type: 'group',
-          name: '开始节点',
+          name: '数据输入',
           ico: 'el-icon-video-play',
           open: true,
           children: [
             {
-              id: '11',
+              id: 'mysql input',
               type: 'timer',
-              name: '数据接入',
+              name: 'mysql输入',
               ico: 'el-icon-time',
-              // 自定义覆盖样式
-              style: {}
-            }, {
-              id: '12',
-              type: 'task',
-              name: '接口调用',
-              ico: 'el-icon-odometer',
               // 自定义覆盖样式
               style: {}
             }
           ]
         },
         {
-          id: '2',
+          id: 'data output',
           type: 'group',
-          name: '结束节点',
+          name: '数据输出',
           ico: 'el-icon-video-pause',
           open: true,
           children: [
@@ -95,9 +98,9 @@ export default {
   },
   created () {
     /**
-             * 以下是为了解决在火狐浏览器上推拽时弹出tab页到搜索问题
-             * @param event
-             */
+     * 以下是为了解决在火狐浏览器上推拽时弹出tab页到搜索问题
+     * @param event
+     */
     if (this.isFirefox()) {
       document.body.ondrop = function (event) {
         // 解决火狐浏览器无法获取鼠标拖拽结束的坐标问题

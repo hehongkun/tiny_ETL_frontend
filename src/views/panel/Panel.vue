@@ -1,6 +1,7 @@
 <template>
   <div v-if="easyFlowVisible"
-       style="height: calc(100vh);">
+       style="height: calc(100vh);"
+       @contextmenu.prevent="rightClick">
     <el-row>
       <!--顶部工具菜单-->
       <el-col :span="24">
@@ -62,41 +63,47 @@
         </div>
       </el-col>
     </el-row>
-    <!-- <div v-if="!hasTaskInfo">
+    <div v-if="!hasTaskInfo">
       <el-empty description="请先选择一个任务或创建一个任务"></el-empty>
-    </div> -->
-    <!-- <div v-else> -->
-    <div style="display: flex;height: calc(100vh - 47px);">
-      <div style="width: 230px;border-right: 1px solid #dce3e8;">
-        <node-menu @addNode="addNode"
-                   ref="nodeMenu"></node-menu>
+    </div>
+    <div v-else>
+      <div style="display: flex;height: calc(100vh - 47px);">
+        <div style="width: 230px;border-right: 1px solid #dce3e8;">
+          <node-menu @addNode="addNode"
+                     ref="nodeMenu"></node-menu>
+        </div>
+        <div id="efContainer"
+             ref="efContainer"
+             class="container"
+             v-flowDrag>
+          <template v-for="node in data.nodeList">
+            <flow-node :id="node.id"
+                       :key="node.id"
+                       :node="node"
+                       :activeElement="activeElement"
+                       @changeNodeSite="changeNodeSite"
+                       @nodeRightMenu="nodeRightMenu"
+                       @clickNode="clickNode"
+                       @showContexMenu="showNodeContextMenu">
+            </flow-node>
+          </template>
+          <ul v-show="contexMenuVisible"
+              :style="{left:left+'px',top:top+'px'}"
+              class="contextmenu">
+            <li @click="deleteElement">删除</li>
+          </ul>
+          <!-- 给画布一个默认的宽度和高度 -->
+          <div style="position:absolute;top: 2000px;left: 2000px;">&nbsp;</div>
+        </div>
+        <!-- 组件参数配置框 -->
+        <el-dialog :visible.sync="nodeFormShow"
+                   style="height:100vh">
+          <flow-node-form ref="nodeForm"
+                          @setLineLabel="setLineLabel"
+                          @repaintEverything="repaintEverything"
+                          @closeNodeForm="closeNodeForm"></flow-node-form>
+        </el-dialog>
       </div>
-      <div id="efContainer"
-           ref="efContainer"
-           class="container"
-           v-flowDrag>
-        <template v-for="node in data.nodeList">
-          <flow-node :id="node.id"
-                     :key="node.id"
-                     :node="node"
-                     :activeElement="activeElement"
-                     @changeNodeSite="changeNodeSite"
-                     @nodeRightMenu="nodeRightMenu"
-                     @clickNode="clickNode">
-          </flow-node>
-        </template>
-        <!-- 给画布一个默认的宽度和高度 -->
-        <div style="position:absolute;top: 2000px;left: 2000px;">&nbsp;</div>
-      </div>
-      <!-- 组件参数配置框 -->
-      <el-dialog :visible.sync="nodeFormShow"
-                 style="height:100vh">
-        <flow-node-form ref="nodeForm"
-                        @setLineLabel="setLineLabel"
-                        @repaintEverything="repaintEverything"
-                        @closeNodeForm="closeNodeForm"></flow-node-form>
-      </el-dialog>
-      <!-- </div> -->
     </div>
     <!-- 流程数据详情 -->
     <task-data v-if="flowInfoVisible"
@@ -145,6 +152,11 @@ export default {
       flowInfoVisible: false,
       // 是否加载完毕标志位
       loadEasyFlowFinish: false,
+      // 右键菜单
+      contexMenuVisible: false,
+      top: 0,
+      left: 0,
+      that: this,
       // etl任务信息
       taskInfo: [],
       flowHelpVisible: false,
@@ -175,9 +187,12 @@ export default {
         if (!binding) {
           return
         }
-        el.onmousedown = (e) => {
+        el.onmousedown = (e, binding) => {
           if (e.button === 2) {
             // 右键不管
+            console.log(111)
+            console.log(e)
+            console.log(222)
             return
           }
           //  鼠标按下，计算当前原始距离可视区的高度
@@ -210,6 +225,15 @@ export default {
     // eslint-disable-next-line no-undef
     this.jsPlumb = jsPlumb.getInstance()
     this.getTaskList()
+  },
+  watch: {
+    contexMenuVisible (value) {
+      if (value) {
+        document.body.addEventListener('click', this.closeContextMeny)
+      } else {
+        document.body.removeEventListener('click', this.closeContextMeny)
+      }
+    }
   },
   methods: {
     ediTaskInfo () {
@@ -282,8 +306,11 @@ export default {
         })
 
         // 连线右击
-        this.jsPlumb.bind('contextmenu', (evt) => {
-          console.log('contextmenu', evt)
+        this.jsPlumb.bind('contextmenu', (evt, e) => {
+          this.activeElement.type = 'line'
+          this.activeElement.sourceId = evt.sourceId
+          this.activeElement.targetId = evt.targetId
+          this.openContextMenu(e)
         })
 
         // 连线
@@ -312,6 +339,24 @@ export default {
         })
         this.jsPlumb.setContainer(this.$refs.efContainer)
       })
+    },
+    showNodeContextMenu (data) {
+      this.activeElement.type = 'node'
+      this.activeElement.nodeId = data.nodeId
+      this.openContextMenu(data.evt)
+    },
+    openContextMenu (evt) {
+      var screenX = evt.clientX
+      let efContainer = this.$refs.efContainer
+      var containerRect = efContainer.getBoundingClientRect()
+      var left = screenX
+      this.left = left - containerRect.x + efContainer.scrollLeft
+
+      this.top = evt.clientY - 60 // fix 位置bug
+      this.contexMenuVisible = true
+    },
+    closeContextMeny () {
+      this.contexMenuVisible = false
     },
     // 加载流程图
     loadEasyFlow () {
@@ -349,6 +394,10 @@ export default {
       this.$nextTick(function () {
         this.loadEasyFlowFinish = true
       })
+    },
+    rightClick (MouseEvent) {
+      // 鼠标右击触发事件
+      this.menuVisible = false // 先把模态框关死，目的是 第二次或者第n次右键鼠标的时候 它默认的是true
     },
     // 设置连线条件
     setLineLabel (from, to, label) {
@@ -414,11 +463,11 @@ export default {
       }
     },
     /**
-             * 拖拽结束后添加新的节点
-             * @param evt
-             * @param nodeMenu 被添加的节点对象
-             * @param mousePosition 鼠标拖拽结束的坐标
-             */
+     * 拖拽结束后添加新的节点
+     * @param evt
+     * @param nodeMenu 被添加的节点对象
+     * @param mousePosition 鼠标拖拽结束的坐标
+     */
     addNode (evt, nodeMenu, mousePosition) {
       var screenX = evt.originalEvent.clientX
       var screenY = evt.originalEvent.clientY
@@ -482,19 +531,19 @@ export default {
       })
     },
     /**
-             * 删除节点
-             * @param nodeId 被删除节点的ID
-             */
+     * 删除节点
+     * @param nodeId 被删除节点的ID
+     */
     deleteNode (nodeId) {
-      this.$confirm('确定要删除节点' + nodeId + '?', '提示', {
+      this.$confirm('确定要删除节点?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
         closeOnClickModal: false
       }).then(() => {
         /**
-                     * 这里需要进行业务判断，是否可以删除
-                     */
+         * 这里需要进行业务判断，是否可以删除
+         */
         this.data.nodeList = this.data.nodeList.filter(function (node) {
           if (node.id === nodeId) {
             // 伪删除，将节点隐藏，否则会导致位置错位
@@ -624,3 +673,29 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.contextmenu {
+  margin: 0;
+  background: #fff;
+  z-index: 3000;
+  position: absolute;
+  list-style-type: none;
+  padding: 5px 0;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #333;
+  box-shadow: 2px 2px 3px 0 rgba(0, 0, 0, 0.3);
+}
+
+.contextmenu li {
+  margin: 0;
+  padding: 7px 16px;
+  cursor: pointer;
+}
+
+.contextmenu li:hover {
+  background: #eee;
+}
+</style>

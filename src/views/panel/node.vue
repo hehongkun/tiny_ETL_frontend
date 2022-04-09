@@ -3,7 +3,8 @@
        :style="nodeContainerStyle"
        @dblclick="clickNode"
        @mouseup="changeNodeSite"
-       :class="nodeContainerClass">
+       :class="nodeContainerClass"
+       @contextmenu.prevent="showNodeContextMenu($event)">
     <!-- 最左侧的那条竖线 -->
     <div class="ef-node-left"></div>
     <!-- 节点类型的图标 -->
@@ -65,6 +66,12 @@ export default {
     // 点击节点
     clickNode () {
       this.$emit('clickNode', this.node.id)
+    },
+    showNodeContextMenu (evt) {
+      this.$emit('showContexMenu', {
+        nodeId: this.node.id,
+        evt: evt
+      })
     },
     // 鼠标移动后抬起
     changeNodeSite () {
