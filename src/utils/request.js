@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { postAction } from '@/api/manage'
+import router from '@/router/index'
 let apiBaseUrl = '/api'
 
 // 创建 axios 实例
@@ -20,6 +21,7 @@ service.interceptors.request.use(config => {
       config.headers.Authorization = localStorage.getItem('token')
     }
   }
+  console.log(config)
   return config
 },
 error => {
@@ -29,25 +31,18 @@ error => {
 // =============================
 // 响应回来token是否过期
 service.interceptors.response.use((response) => {
-  // 和后端token失效返回码约定403
+  // 和后端token失效返回码约定401
   if (response.status === 401) {
-    console.log(222)
     // 引用elementui message提示框
-    this.$message({
-      message: '身份已失效',
-      type: 'err'
-    })
     // 清除token
-    localStorage.removeItem('token ')
+    localStorage.removeItem('token')
     // 跳转
-    this.$router.push('/')
+    router.replace({name: 'login'})
   } else {
     return response
   }
 },
 error => {
-  console.log(111)
-  console.log(error.response)
   if (error.response.status === 401) {
     if (localStorage.getItem('token')) {
       postAction('/user/refreshtoken').then((res) => {
@@ -55,12 +50,16 @@ error => {
           localStorage.setItem('token', res.data.token)
         } else {
           // 清除token
-          localStorage.removeItem('token ')
+          localStorage.removeItem('token')
           // 跳转
-          this.$router.push('/')
+          router.replace({name: 'login'})
         }
       })
     }
+    // 清除token
+    localStorage.removeItem('token')
+    // 跳转
+    router.replace({name: 'login'})
   }
   return Promise.reject(error)
 })
