@@ -51,7 +51,7 @@
                        plain
                        round
                        icon="el-icon-document"
-                       @click="openHelp"
+                       @click="openFilesDialog"
                        size="mini">文件库</el-button>
           </div>
         </div>
@@ -104,6 +104,8 @@
     <task-form v-if="taskFormVisible"
                ref="taskForm"
                @createTask="createTask($event)"></task-form>
+    <user-files v-if="userFilesVisible"
+                ref="userFiles"></user-files>
     <ul v-show="contexMenuVisible"
         :style="{left:left+'px',top:top+'px'}"
         class="contextmenu">
@@ -126,6 +128,7 @@ import TaskHelp from '@/views/panel/help/help'
 import FlowNodeForm from '@/views/panel/componentForm/component_form'
 import lodash from 'lodash'
 import TaskForm from '@/views/panel/taskForm/task_form'
+import UserFiles from '@/views/panel/userFiles/user_files.vue'
 // eslint-disable-next-line no-unused-vars
 import { ForceDirected } from './js/force-directed'
 import { getAction } from '@/api/manage'
@@ -149,6 +152,8 @@ export default {
       loadEasyFlowFinish: false,
       // 右键菜单
       contexMenuVisible: false,
+      // 用户文件树
+      userFilesVisible: false,
       top: 0,
       left: 0,
       that: this,
@@ -175,7 +180,7 @@ export default {
   // 一些基础配置移动该文件中
   mixins: [easyFlowMixin],
   components: {
-    draggable, flowNode, nodeMenu, TaskData, FlowNodeForm, TaskHelp, TaskForm
+    draggable, flowNode, nodeMenu, TaskData, FlowNodeForm, TaskHelp, TaskForm, UserFiles
   },
   directives: {
     'flowDrag': {
@@ -448,7 +453,7 @@ export default {
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          axios.delete('/task/deletetask/' + this.activeElement.taskId).then((res) => {
+          axios.delete('/task/deletetask/' + this.activeElement.taskId.toString()).then((res) => {
             this.getTaskList()
           })
         }).catch(() => {
@@ -479,11 +484,11 @@ export default {
       }
     },
     /**
- * 拖拽结束后添加新的节点
- * @param evt
- * @param nodeMenu 被添加的节点对象
- * @param mousePosition 鼠标拖拽结束的坐标
- */
+* 拖拽结束后添加新的节点
+* @param evt
+* @param nodeMenu 被添加的节点对象
+* @param mousePosition 鼠标拖拽结束的坐标
+*/
     addNode (evt, nodeMenu, mousePosition) {
       var screenX = evt.originalEvent.clientX
       var screenY = evt.originalEvent.clientY
@@ -531,8 +536,8 @@ export default {
         state: null
       }
       /**
-   * 这里可以进行业务判断、是否能够添加该节点
-   */
+* 这里可以进行业务判断、是否能够添加该节点
+*/
       this.data.nodeList.push(node)
       this.$nextTick(function () {
         this.jsPlumb.makeSource(nodeId, this.jsplumbSourceOptions)
@@ -547,9 +552,9 @@ export default {
       })
     },
     /**
- * 删除节点
- * @param nodeId 被删除节点的ID
- */
+* 删除节点
+* @param nodeId 被删除节点的ID
+*/
     deleteNode (nodeId) {
       this.$confirm('确定要删除节点?', '提示', {
         confirmButtonText: '确定',
@@ -558,8 +563,8 @@ export default {
         closeOnClickModal: false
       }).then(() => {
         /**
-     * 这里需要进行业务判断，是否可以删除
-     */
+* 这里需要进行业务判断，是否可以删除
+*/
         this.data.nodeList = this.data.nodeList.filter(function (node) {
           if (node.id === nodeId) {
             // 伪删除，将节点隐藏，否则会导致位置错位
@@ -684,6 +689,12 @@ export default {
       this.flowHelpVisible = true
       this.$nextTick(function () {
         this.$refs.taskHelp.init()
+      })
+    },
+    openFilesDialog () {
+      this.userFilesVisible = true
+      this.$nextTick(() => {
+        this.$refs.userFiles.init()
       })
     }
   }
