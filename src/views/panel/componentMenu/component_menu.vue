@@ -56,8 +56,9 @@ export default {
           open: true,
           children: [
             {
+              // 需要根据type动态加载组件的参数配置页面
               id: 'mysql input',
-              type: 'timer',
+              type: 'mysql_input',
               name: 'mysql输入',
               ico: 'el-icon-time',
               // 自定义覆盖样式

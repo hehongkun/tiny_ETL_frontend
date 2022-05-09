@@ -190,9 +190,6 @@ export default {
         el.onmousedown = (e, binding) => {
           if (e.button === 2) {
             // 右键不管
-            console.log(111)
-            console.log(e)
-            console.log(222)
             return
           }
           //  鼠标按下，计算当前原始距离可视区的高度
@@ -355,6 +352,7 @@ export default {
       this.top = evt.clientY - 60 // fix 位置bug
       this.contexMenuVisible = true
     },
+    // 获取用户id
     closeContextMeny () {
       this.contexMenuVisible = false
     },
