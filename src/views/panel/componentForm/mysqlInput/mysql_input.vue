@@ -2,40 +2,33 @@
   <div>
     <div class="ef-node-form">
       <div class="ef-node-form-header">
-        编辑
+        mysql输入
       </div>
       <div class="ef-node-form-body">
         <el-form :model="node"
                  ref="dataForm"
                  label-width="80px"
                  v-show="type === 'node'">
-          <el-form-item label="类型">
-            <el-input v-model="node.type"
-                      :disabled="true"></el-input>
-          </el-form-item>
           <el-form-item label="名称">
             <el-input v-model="node.name"></el-input>
           </el-form-item>
-          <el-form-item label="left坐标">
-            <el-input v-model="node.left"
-                      :disabled="true"></el-input>
+          <el-form-item label="主机">
+            <el-input v-model="node.params.host"></el-input>
           </el-form-item>
-          <el-form-item label="top坐标">
-            <el-input v-model="node.top"
-                      :disabled="true"></el-input>
+          <el-form-item label="端口">
+            <el-input v-model="node.params.port"></el-input>
           </el-form-item>
-          <el-form-item label="ico图标">
-            <el-input v-model="node.ico"></el-input>
+          <el-form-item label="用户名">
+            <el-input v-model="node.params.username"></el-input>
           </el-form-item>
-          <el-form-item label="状态">
-            <el-select v-model="node.state"
-                       placeholder="请选择">
-              <el-option v-for="item in stateList"
-                         :key="item.state"
-                         :label="item.label"
-                         :value="item.state">
-              </el-option>
-            </el-select>
+          <el-form-item label="密码">
+            <el-input v-model="node.params.password"></el-input>
+          </el-form-item>
+          <el-form-item label="数据库">
+            <el-input v-model="node.params.database"></el-input>
+          </el-form-item>
+          <el-form-item label="执行语句">
+            <el-input v-model="node.params.sql"></el-input>
           </el-form-item>
           <el-form-item>
             <el-button icon="el-icon-close"
@@ -45,23 +38,7 @@
                        @click="save">保存</el-button>
           </el-form-item>
         </el-form>
-        <el-form :model="line"
-                 ref="dataForm"
-                 label-width="80px"
-                 v-show="type === 'line'">
-          <el-form-item label="条件">
-            <el-input v-model="line.label"></el-input>
-          </el-form-item>
-          <el-form-item>
-            <el-button icon="el-icon-close"
-                       @click="closeNodeForm">隐藏</el-button>
-            <el-button type="primary"
-                       icon="el-icon-check"
-                       @click="saveLine">保存</el-button>
-          </el-form-item>
-        </el-form>
       </div>
-      <!--            <div class="el-node-form-tag"></div>-->
     </div>
   </div>
 
@@ -105,8 +82,8 @@ export default {
       this.data = data
       data.nodeList.filter((node) => {
         if (node.id === id) {
-          this.
-					 = cloneDeep(node)
+          this.node = cloneDeep(node)
+          console.log(this.node)
         }
       })
     },
@@ -122,7 +99,6 @@ export default {
       this.$emit('setLineLabel', this.line.from, this.line.to, this.line.label)
     },
     save () {
-      this.visible = false
       this.data.nodeList.filter((node) => {
         if (node.id === this.node.id) {
           node.name = this.node.name
@@ -130,9 +106,11 @@ export default {
           node.top = this.node.top
           node.ico = this.node.ico
           node.state = this.node.state
-          this.$emit('repaintEverything')
+          node.params = this.node.params
+          this.$emit('save')
         }
       })
+      this.visible = false
     }
   }
 }

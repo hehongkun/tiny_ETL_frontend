@@ -60,9 +60,7 @@ export default {
         if (valid) {
           this.task.data.name = this.task.name
           this.task.data = JSON.stringify(this.task.data)
-          console.log(this.task.data)
           postAction('/task/add', this.task).then((res) => {
-            console.log(res)
             if (res.data.success) {
               this.$message({
                 message: '创建成功',

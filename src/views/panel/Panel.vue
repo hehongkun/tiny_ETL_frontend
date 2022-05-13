@@ -11,10 +11,9 @@
                     :underline="false">{{hasTaskInfo ? data.name : "null"}}</el-tag>
             <el-divider direction="vertical"></el-divider>
             <el-button type="text"
-                       icon="el-icon-delete"
+                       icon="el-icon-video-play"
                        size="large"
-                       @click="deleteElement"
-                       :disabled="!this.activeElement.type"></el-button>
+                       @click="executeTask"></el-button>
             <el-divider direction="vertical"></el-divider>
             <el-button type="text"
                        icon="el-icon-download"
@@ -41,8 +40,8 @@
                          type="primary"
                          plain
                          round
+                         @contextmenu.prevent.native="openMenu($event,task.Id)"
                          @click="loadData(task)"
-                         @dblclick.native="ediTaskInfo(task)"
                          icon="el-icon-refresh"
                          size="mini">{{ task.Name }}</el-button>
             </div>
@@ -57,7 +56,7 @@
                        plain
                        round
                        icon="el-icon-document"
-                       @click="openHelp"
+                       @click="openFilesDialog"
                        size="mini">文件库</el-button>
           </div>
         </div>
@@ -87,11 +86,6 @@
                        @showContexMenu="showNodeContextMenu">
             </flow-node>
           </template>
-          <ul v-show="contexMenuVisible"
-              :style="{left:left+'px',top:top+'px'}"
-              class="contextmenu">
-            <li @click="deleteElement">删除</li>
-          </ul>
           <!-- 给画布一个默认的宽度和高度 -->
           <div style="position:absolute;top: 2000px;left: 2000px;">&nbsp;</div>
         </div>
@@ -115,6 +109,13 @@
     <task-form v-if="taskFormVisible"
                ref="taskForm"
                @createTask="createTask($event)"></task-form>
+    <user-files v-if="userFilesVisible"
+                ref="userFiles"></user-files>
+    <ul v-show="contexMenuVisible"
+        :style="{left:left+'px',top:top+'px'}"
+        class="contextmenu">
+      <li @click="deleteElement">删除</li>
+    </ul>
   </div>
 
 </template>
@@ -132,9 +133,11 @@ import TaskHelp from '@/views/panel/help/help'
 import FlowNodeForm from '@/views/panel/componentForm/component_form'
 import lodash from 'lodash'
 import TaskForm from '@/views/panel/taskForm/task_form'
+import UserFiles from '@/views/panel/userFiles/user_files.vue'
 // eslint-disable-next-line no-unused-vars
 import { ForceDirected } from './js/force-directed'
-import { getAction } from '@/api/manage'
+import { getAction, postAction } from '@/api/manage'
+import { axios } from '@/utils/request'
 
 export default {
   name: 'panel',
@@ -154,6 +157,8 @@ export default {
       loadEasyFlowFinish: false,
       // 右键菜单
       contexMenuVisible: false,
+      // 用户文件树
+      userFilesVisible: false,
       top: 0,
       left: 0,
       that: this,
@@ -162,7 +167,11 @@ export default {
       flowHelpVisible: false,
       taskFormVisible: false,
       // 数据
-      data: {},
+      data: {
+        nodeList: [],
+        lineList: [],
+        name: ''
+      },
       // 激活的元素、可能是节点、可能是连线
       activeElement: {
         // 可选值 node 、line
@@ -171,7 +180,8 @@ export default {
         nodeId: undefined,
         // 连线ID
         sourceId: undefined,
-        targetId: undefined
+        targetId: undefined,
+        taskId: undefined
       },
       zoom: 0.5
     }
@@ -179,7 +189,7 @@ export default {
   // 一些基础配置移动该文件中
   mixins: [easyFlowMixin],
   components: {
-    draggable, flowNode, nodeMenu, TaskData, FlowNodeForm, TaskHelp, TaskForm
+    draggable, flowNode, nodeMenu, TaskData, FlowNodeForm, TaskHelp, TaskForm, UserFiles
   },
   directives: {
     'flowDrag': {
@@ -201,7 +211,7 @@ export default {
             // 移动时禁止默认事件
             e.preventDefault()
             const left = e.clientX - disX
-            disX = e.clientX
+            disX = e.cldataientX
             el.scrollLeft += -left
 
             const top = e.clientY - disY
@@ -233,17 +243,18 @@ export default {
     }
   },
   methods: {
-    ediTaskInfo () {
-      console.log(2222)
-    },
     getTaskList () {
       this.taskFormVisible = false
       getAction('/task/getalltasklist').then((res) => {
         this.taskInfo.splice(0, this.taskInfo.length)
-        for (var task of res.data) {
-          task['Running'] = false // 一开始所有任务的执行状态都是false
+        if (res.data) {
+          for (var task of res.data) {
+            task['Running'] = false // 一开始所有任务的执行状态都是false
+          }
+          this.taskInfo = res.data
+        } else {
+          this.hasTaskInfo = false
         }
-        this.taskInfo = res.data
       })
     },
     closeNodeForm () {
@@ -332,10 +343,14 @@ export default {
 
         // beforeDetach
         this.jsPlumb.bind('beforeDetach', (evt) => {
-          console.log('beforeDetach', evt)
         })
         this.jsPlumb.setContainer(this.$refs.efContainer)
       })
+    },
+    openMenu (evt, id) {
+      this.activeElement.type = 'task'
+      this.activeElement.taskId = id
+      this.openContextMenu(evt)
     },
     showNodeContextMenu (data) {
       this.activeElement.type = 'node'
@@ -344,12 +359,16 @@ export default {
     },
     openContextMenu (evt) {
       var screenX = evt.clientX
-      let efContainer = this.$refs.efContainer
-      var containerRect = efContainer.getBoundingClientRect()
+      // let efContainer = this.$refs.efContainer
+      // var containerRect = efContainer.getBoundingClientRect()
       var left = screenX
-      this.left = left - containerRect.x + efContainer.scrollLeft
+      // if (efContainer) {
+      //   this.left = left + efContainer.scrollLeft
+      // } else {
+      this.left = left
+      // }
 
-      this.top = evt.clientY - 60 // fix 位置bug
+      this.top = evt.clientY // fix 位置bug
       this.contexMenuVisible = true
     },
     // 获取用户id
@@ -435,6 +454,17 @@ export default {
           this.jsPlumb.deleteConnection(conn)
         }).catch(() => {
         })
+      } else if (this.activeElement.type === 'task') {
+        this.$confirm('确定删除所点击的任务吗?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          axios.delete('/task/deletetask/' + this.activeElement.taskId.toString()).then((res) => {
+            this.getTaskList()
+          })
+        }).catch(() => {
+        })
       }
     },
     // 删除线
@@ -461,11 +491,11 @@ export default {
       }
     },
     /**
-     * 拖拽结束后添加新的节点
-     * @param evt
-     * @param nodeMenu 被添加的节点对象
-     * @param mousePosition 鼠标拖拽结束的坐标
-     */
+* 拖拽结束后添加新的节点
+* @param evt
+* @param nodeMenu 被添加的节点对象
+* @param mousePosition 鼠标拖拽结束的坐标
+*/
     addNode (evt, nodeMenu, mousePosition) {
       var screenX = evt.originalEvent.clientX
       var screenY = evt.originalEvent.clientY
@@ -510,11 +540,12 @@ export default {
         left: left + 'px',
         top: top + 'px',
         ico: nodeMenu.ico,
-        state: 'success'
+        params: nodeMenu.params,
+        state: null
       }
       /**
-       * 这里可以进行业务判断、是否能够添加该节点
-       */
+* 这里可以进行业务判断、是否能够添加该节点
+*/
       this.data.nodeList.push(node)
       this.$nextTick(function () {
         this.jsPlumb.makeSource(nodeId, this.jsplumbSourceOptions)
@@ -523,15 +554,15 @@ export default {
           containment: 'parent',
           stop: function (el) {
             // 拖拽节点结束后的对调
-            console.log('拖拽结束: ', el)
+            // console.log('拖拽结束: ', el)
           }
         })
       })
     },
     /**
-     * 删除节点
-     * @param nodeId 被删除节点的ID
-     */
+* 删除节点
+* @param nodeId 被删除节点的ID
+*/
     deleteNode (nodeId) {
       this.$confirm('确定要删除节点?', '提示', {
         confirmButtonText: '确定',
@@ -540,8 +571,8 @@ export default {
         closeOnClickModal: false
       }).then(() => {
         /**
-         * 这里需要进行业务判断，是否可以删除
-         */
+        * 这里需要进行业务判断，是否可以删除
+        */
         this.data.nodeList = this.data.nodeList.filter(function (node) {
           if (node.id === nodeId) {
             // 伪删除，将节点隐藏，否则会导致位置错位
@@ -599,8 +630,6 @@ export default {
     // 加载流程图
     dataReload (data) {
       this.easyFlowVisible = false
-      this.data.nodeList = []
-      this.data.lineList = []
       this.$nextTick(() => {
         data = lodash.cloneDeep(data)
         this.easyFlowVisible = true
@@ -622,9 +651,14 @@ export default {
       })
     },
     loadData (task) {
-      this.data = JSON.parse(task.Data)
+      var tmpData = JSON.parse(task.Data)
+      this.data.nodeList = tmpData.nodeList
+      this.data.lineList = tmpData.lineList
+      this.data.name = tmpData.name
+      this.data.id = task.Id
       this.hasTaskInfo = true
       this.$nextTick(() => {
+        console.log(this.data)
         this.dataReload(this.data)
       })
     },
@@ -666,6 +700,29 @@ export default {
       this.flowHelpVisible = true
       this.$nextTick(function () {
         this.$refs.taskHelp.init()
+      })
+    },
+    openFilesDialog () {
+      this.userFilesVisible = true
+      this.$nextTick(() => {
+        this.$refs.userFiles.init()
+      })
+    },
+    executeTask () {
+      var taskData = this.data
+      var data
+      this.taskInfo.filter(function (item) {
+        if (item.Id === taskData.id) {
+          delete taskData.id
+          item.Data = JSON.stringify(taskData)
+          data = item
+          taskData.id = item.Id
+        }
+      })
+      console.log(taskData)
+      console.log(data)
+      postAction('/task/run', data, (res) => {
+        console.log(res)
       })
     }
   }

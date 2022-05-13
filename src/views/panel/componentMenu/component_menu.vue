@@ -1,25 +1,28 @@
 <template>
   <div class="flow-menu"
        ref="tool">
-    <div v-for="menu  in  menuList"
-         :key="menu.id">
-      <span class="ef-node-pmenu"
-            @click="menu.open = !menu.open"><i :class="{'el-icon-caret-bottom': menu.open,'el-icon-caret-right': !menu.open}"></i>&nbsp;{{menu.name}}</span>
-      <ul v-show="menu.open"
-          class="ef-node-menu-ul">
-        <draggable @end="end"
-                   @start="move"
-                   v-model="menu.children"
-                   :options="draggableOptions">
-          <li v-for="subMenu in menu.children"
-              class="ef-node-menu-li"
-              :key="subMenu.id"
-              :type="subMenu.type">
-            <i :class="subMenu.ico"></i> {{subMenu.name}}
-          </li>
-        </draggable>
-      </ul>
-    </div>
+    <el-scrollbar style="height: calc(100vh - 47px);">
+      <div v-for="menu  in  menuList"
+           :key="menu.id">
+        <span class="ef-node-pmenu"
+              @click="menu.open = !menu.open"><i :class="{'el-icon-caret-bottom': menu.open,'el-icon-caret-right': !menu.open}"></i>&nbsp;{{menu.name}}</span>
+        <ul v-show="menu.open"
+            class="ef-node-menu-ul">
+          <draggable @end="end"
+                     @start="move"
+                     v-model="menu.children"
+                     :options="draggableOptions">
+            <li v-for="subMenu in menu.children"
+                class="ef-node-menu-li"
+                :key="subMenu.id"
+                :type="subMenu.type"
+                style="text-align: left">
+              <i :class="subMenu.ico"></i> {{subMenu.name}}
+            </li>
+          </draggable>
+        </ul>
+      </div>
+    </el-scrollbar>
   </div>
 </template>
 <script>
@@ -46,45 +49,194 @@ export default {
         // fallbackClass: 'flow-node-draggable'
       },
       // 默认打开的左侧菜单的id
-      defaultOpeneds: ['1', '2'],
+      defaultOpeneds: [],
       menuList: [
         {
-          id: 'data input',
+          id: '1',
           type: 'group',
-          name: '数据输入',
+          name: '输入',
           ico: 'el-icon-video-play',
           open: true,
           children: [
             {
-              // 需要根据type动态加载组件的参数配置页面
-              id: 'mysql input',
-              type: 'mysql_input',
-              name: 'mysql输入',
-              ico: 'el-icon-time',
+              id: '11',
+              type: 'csvInput',
+              name: 'csv文件输入',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+              },
+              // 自定义覆盖样式
+              style: {}
+            },
+            {
+              id: '12',
+              type: 'jsonInput',
+              name: 'json文件输入',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+              },
+              // 自定义覆盖样式
+              style: {}
+            },
+            {
+              id: '13',
+              type: 'txtInput',
+              name: '文本文件输入',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+              },
+              // 自定义覆盖样式
+              style: {}
+            },
+            {
+              id: '14',
+              type: 'generateRecord',
+              name: '生成记录',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+              },
+              // 自定义覆盖样式
+              style: {}
+            },
+            {
+              id: '15',
+              type: 'generateRand',
+              name: '生成随机数',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+              },
+              // 自定义覆盖样式
+              style: {}
+            },
+            {
+              id: '16',
+              type: 'mysqlInput',
+              name: 'mysql表输入',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+                host: '',
+                port: '',
+                username: '',
+                password: '',
+                database: '',
+                sql: ''
+              },
               // 自定义覆盖样式
               style: {}
             }
           ]
         },
         {
-          id: 'data output',
+          id: '2',
           type: 'group',
-          name: '数据输出',
+          name: '输出',
           ico: 'el-icon-video-pause',
           open: true,
           children: [
             {
               id: '21',
-              type: 'end',
-              name: '流程结束',
+              type: 'csvOutput',
+              name: 'csv文件输出',
               ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+              },
               // 自定义覆盖样式
               style: {}
             }, {
               id: '22',
-              type: 'over',
-              name: '数据清理',
-              ico: 'el-icon-shopping-cart-full',
+              type: 'excelOutput',
+              name: 'excel文件输出',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
+              id: '23',
+              type: 'tableOutput',
+              name: '表输出',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
+              id: '24',
+              type: 'jsonOutput',
+              name: 'json文件输出',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+              },
+              // 自定义覆盖样式
+              style: {}
+            }
+          ]
+        },
+        {
+          id: '3',
+          type: 'group',
+          name: '转换',
+          ico: 'el-icon-video-pause',
+          open: true,
+          children: [
+            {
+              id: '31',
+              type: 'valueMapping',
+              name: '值映射',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
+              id: '33',
+              type: 'columnToRow',
+              name: '列转行',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
+              id: '34',
+              type: 'cutString',
+              name: '切割字符串',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
+              id: '35',
+              type: 'removeDuplicateRecord',
+              name: '去除重复记录',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
+              id: '36',
+              type: 'replaceString',
+              name: '字符串替换',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+              },
               // 自定义覆盖样式
               style: {}
             }

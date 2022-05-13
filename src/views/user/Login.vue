@@ -61,7 +61,9 @@ export default {
           postAction('/user/login', params).then((res) => {
             if (res.data.success) {
               // 登录成功，跳转页面
+              console.log(res)
               localStorage.setItem('token', res.data.token)
+              localStorage.setItem('userId', res.data.user.Id)
               this.$router.push('panel')
             } else {
               this.$message.error(res.data.data)

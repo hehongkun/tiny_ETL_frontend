@@ -9,6 +9,11 @@ var router = new Router({
   routes: [
     {
       path: '/',
+      name: 'login',
+      component: Login
+    },
+    {
+      path: '/login',
       name: 'Login',
       component: Login
     },
@@ -22,8 +27,6 @@ var router = new Router({
 
 router.beforeEach((to, from, next) => {
   const isLogin = !!localStorage.token
-  console.log(to.path)
-
   if (to.path === '/login') {
     next()
   } else {
