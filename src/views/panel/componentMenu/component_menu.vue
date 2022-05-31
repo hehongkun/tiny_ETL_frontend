@@ -161,11 +161,18 @@ export default {
               style: {}
             }, {
               id: '23',
-              type: 'tableOutput',
-              name: '表输出',
+              type: 'mysqlOutput',
+              name: 'mysql表输出',
               ico: 'el-icon-caret-right',
               // 组件参数
               params: {
+                host: '',
+                port: '',
+                username: '',
+                password: '',
+                database: '',
+                table: '',
+                fieldMappings: []
               },
               // 自定义覆盖样式
               style: {}
@@ -236,6 +243,17 @@ export default {
               ico: 'el-icon-caret-right',
               // 组件参数
               params: {
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
+              id: '37',
+              type: 'changeFieldType',
+              name: '字段类型转换',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+                fields: []
               },
               // 自定义覆盖样式
               style: {}

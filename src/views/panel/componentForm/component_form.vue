@@ -12,6 +12,8 @@
 import csvInput from './csvInput/csv_input.vue'
 import jsonInput from './jsonInput/json_input.vue'
 import mysqlInput from './mysqlInput/mysql_input.vue'
+import mysqlOutput from './mysqlOutput/mysql_output.vue'
+import changeFieldType from './changeFieldType/change_field_type.vue'
 
 export default {
   data () {
@@ -41,7 +43,9 @@ export default {
   components: {
     csvInput,
     mysqlInput,
-    jsonInput
+    jsonInput,
+    mysqlOutput,
+    changeFieldType
   },
   methods: {
     /**
