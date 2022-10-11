@@ -28,14 +28,21 @@
             </template>
             <template v-else>
               <div v-if="data.isDir">
-                <el-button type="text"
-                           @click="edit(node, data)">重命名</el-button>
-                <el-button type="text"
-                           @click="add(node, data)">添加文件夹</el-button>
-                <el-button type="text"
-                           @click="deleteNode(node, data)">删除</el-button>
+                <el-upload class="upload-demo"
+                           :action=actionUrl
+                           :on-preview="handlePreview"
+                           :on-remove="handleRemove"
+                           :before-remove="beforeRemove"
+                           multiple
+                           :limit="3"
+                           :on-exceed="handleExceed"
+                           :file-list="fileList">
+                  <el-button type="text">上传文件</el-button>
+                </el-upload>
               </div>
               <div v-else>
+                <el-button type="text"
+                           @click="deleteNode(node, data)">下载</el-button>
                 <el-button type="text"
                            @click="deleteNode(node, data)">删除</el-button>
               </div>
@@ -118,6 +125,9 @@ export default {
       this.curText = label
       data.edit = true
       this.curNode = node
+    },
+    uploadFile (node, data) {
+
     },
     deleteNode (node, data) {
       const parent = node.parent

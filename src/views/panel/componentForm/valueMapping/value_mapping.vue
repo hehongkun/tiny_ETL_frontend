@@ -2,62 +2,53 @@
   <div>
     <div class="ef-node-form">
       <div class="ef-node-form-header">
-        mysql输出
+        值映射
       </div>
       <div class="ef-node-form-body">
         <el-form :model="node"
                  ref="dataForm"
-                 label-width="80px"
+                 label-width="160px"
                  v-show="type === 'node'">
           <el-form-item label="名称">
             <el-input v-model="node.name"></el-input>
           </el-form-item>
-          <el-form-item label="主机">
-            <el-input v-model="node.params.host"></el-input>
+          <el-form-item label="字段名">
+            <el-input v-model="node.params.srcField"></el-input>
           </el-form-item>
-          <el-form-item label="端口">
-            <el-input v-model="node.params.port"></el-input>
+          <el-form-item label="目标字段名(空=覆盖)">
+            <el-input v-model="node.params.destField"></el-input>
           </el-form-item>
-          <el-form-item label="用户名">
-            <el-input v-model="node.params.username"></el-input>
+          <el-form-item label="不匹配时的默认值(空=源值)">
+            <el-input v-model="node.params.defaultValue"></el-input>
           </el-form-item>
-          <el-form-item label="密码">
-            <el-input v-model="node.params.password"></el-input>
-          </el-form-item>
-          <el-form-item label="数据库">
-            <el-input v-model="node.params.database"></el-input>
-          </el-form-item>
-          <el-form-item label="表">
-            <el-input v-model="node.params.table"></el-input>
-          </el-form-item>
-          <h2>字段映射</h2>
+          <h2>值映射</h2>
           <div>
-            <el-table :data="node.params.fieldMappings"
+            <el-table :data="node.params.mappings"
                       size="mini"
                       @cell-mouse-enter="handleCellEnter"
                       @cell-mouse-leave="handleCellLeave">
-              <el-table-column prop="srcField"
-                               label="源字段"
+              <el-table-column prop="srcValue"
+                               label="源值"
                                align="center">
                 <template slot-scope="scope">
                   <el-input v-if="scope.row.isEdit"
                             class="item"
-                            v-model="scope.row.srcField"
-                            placeholder="请输入源字段"></el-input>
+                            v-model="scope.row.srcValue"
+                            placeholder="请输入源值"></el-input>
                   <div v-else
-                       class="txt">{{scope.row.srcField}}</div>
+                       class="txt">{{scope.row.srcValue}}</div>
                 </template>
               </el-table-column>
-              <el-table-column prop="destField"
-                               label="目标字段"
+              <el-table-column prop="destValue"
+                               label="目标值"
                                align="center">
                 <template slot-scope="scope">
                   <el-input v-if="scope.row.isEdit"
                             class="item"
-                            v-model="scope.row.destField"
-                            placeholder="请输入目标字段"></el-input>
+                            v-model="scope.row.destValue"
+                            placeholder="请输入目标值"></el-input>
                   <div v-else
-                       class="txt">{{scope.row.destField}}</div>
+                       class="txt">{{scope.row.destValue}}</div>
                 </template>
               </el-table-column>
               <el-table-column fixed="right"
@@ -129,11 +120,11 @@ export default {
           this.node = cloneDeep(node)
           console.log(this.node.params)
 
-          if (this.node.params.fieldMappings.length === 0) {
-            this.node.params.fieldMappings.push({
+          if (this.node.params.mappings.length === 0) {
+            this.node.params.mappings.push({
               isEdit: false,
-              srcField: '',
-              destField: ''
+              srcValue: '',
+              destValue: ''
             })
           }
         }
@@ -173,21 +164,21 @@ export default {
       row.isEdit = false
     },
     handleAddField () {
-      this.node.params.fieldMappings.push({
+      this.node.params.mappings.push({
         isEdit: false,
-        srcField: '',
-        destField: ''
+        srcValue: '',
+        destValue: ''
       })
     },
     handleDelete (row) {
-      if (this.node.params.fieldMappings.length === 1) {
-        row.srcField = ''
-        row.destField = ''
+      if (this.node.params.mappings.length === 1) {
+        row.srcValue = ''
+        row.destValue = ''
         return
       }
-      this.node.params.fieldMappings.forEach(element => {
-        if (element.srcField === row.srcField && element.destField === row.destField) {
-          this.node.params.fieldMappings.splice(this.node.params.fieldMappings.indexOf(element), 1)
+      this.node.params.mappings.forEach(element => {
+        if (element.srcValue === row.srcValue && element.destValue === row.destValue) {
+          this.node.params.mappings.splice(this.node.params.mappings.indexOf(element), 1)
         }
       })
     }

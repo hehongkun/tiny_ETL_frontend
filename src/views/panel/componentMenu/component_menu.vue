@@ -203,6 +203,10 @@ export default {
               ico: 'el-icon-caret-right',
               // 组件参数
               params: {
+                srcField: '',
+                dstField: '',
+                defaultValue: '',
+                mappings: []
               },
               // 自定义覆盖样式
               style: {}
@@ -213,16 +217,21 @@ export default {
               ico: 'el-icon-caret-right',
               // 组件参数
               params: {
+                keyField: '',
+                groupByField: '',
+                groupByFields: [],
+                fields: []
               },
               // 自定义覆盖样式
               style: {}
             }, {
               id: '34',
               type: 'cutString',
-              name: '切割字符串',
+              name: '剪切字符串',
               ico: 'el-icon-caret-right',
               // 组件参数
               params: {
+                fields: []
               },
               // 自定义覆盖样式
               style: {}
@@ -233,6 +242,7 @@ export default {
               ico: 'el-icon-caret-right',
               // 组件参数
               params: {
+                fields: []
               },
               // 自定义覆盖样式
               style: {}
@@ -243,6 +253,7 @@ export default {
               ico: 'el-icon-caret-right',
               // 组件参数
               params: {
+                fields: []
               },
               // 自定义覆盖样式
               style: {}
@@ -253,6 +264,30 @@ export default {
               ico: 'el-icon-caret-right',
               // 组件参数
               params: {
+                fields: []
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
+              id: '38',
+              type: 'fieldSelect',
+              name: '字段选择',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+                fields: []
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
+              id: '39',
+              type: 'rowToColumn',
+              name: '行转列',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+                keyField: '',
+                transformField: '',
                 fields: []
               },
               // 自定义覆盖样式

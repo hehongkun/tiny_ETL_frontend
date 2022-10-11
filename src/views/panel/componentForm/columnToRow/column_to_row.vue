@@ -2,55 +2,101 @@
   <div>
     <div class="ef-node-form">
       <div class="ef-node-form-header">
-        字段类型转换
+        剪切字符串
       </div>
       <div class="ef-node-form-body">
         <el-form :model="node"
                  ref="dataForm"
-                 label-width="80px"
+                 label-width="160px"
                  v-show="type === 'node'">
+          <el-form-item label="名称">
+            <el-input v-model="node.name"></el-input>
+          </el-form-item>
+          <el-form-item label="关键字段">
+            <el-input v-model="node.params.keyField"></el-input>
+          </el-form-item>
+          <h2>分组字段</h2>
           <div>
-            <el-form-item label="名称">
-              <el-input v-model="node.name"></el-input>
-            </el-form-item>
+            <el-table :data="node.params.groupByFields"
+                      size="mini"
+                      @cell-mouse-enter="handleCellEnter"
+                      @cell-mouse-leave="handleCellLeave">
+              <el-table-column prop="groupByField"
+                               label="目标字段"
+                               align="center">
+                <template slot-scope="scope">
+                  <el-input v-if="scope.row.isEdit"
+                            class="item"
+                            v-model="scope.row.groupByField"></el-input>
+                  <div v-else
+                       class="txt">{{scope.row.groupByField}}</div>
+                </template>
+              </el-table-column>
+              <el-table-column fixed="right"
+                               label="操作"
+                               align="center">
+                <template slot-scope="scope">
+                  <el-button @click="handleAddGroupByField()"
+                             type="text"
+                             size="small">插入字段</el-button>
+                  <el-button @click="handleDeleteGroupByField(scope.row)"
+                             type="text"
+                             size="small">删除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+          <h2>目标字段</h2>
+          <div>
             <el-table :data="node.params.fields"
                       size="mini"
                       @cell-mouse-enter="handleCellEnter"
                       @cell-mouse-leave="handleCellLeave">
-              <el-table-column prop="fieldName"
-                               label="字段名"
+              <el-table-column prop="targetField"
+                               label="目标字段"
                                align="center">
                 <template slot-scope="scope">
                   <el-input v-if="scope.row.isEdit"
                             class="item"
-                            v-model="scope.row.src"
-                            placeholder="请输入字段名"></el-input>
+                            v-model="scope.row.targetField"></el-input>
                   <div v-else
-                       class="txt">{{scope.row.src}}</div>
+                       class="txt">{{scope.row.targetField}}</div>
                 </template>
               </el-table-column>
-              <el-table-column prop="fieldType"
-                               label="字段类型"
+              <el-table-column prop="dataField"
+                               label="数据字段"
                                align="center">
                 <template slot-scope="scope">
                   <el-input v-if="scope.row.isEdit"
                             class="item"
-                            v-model="scope.row.fieldType"
-                            placeholder="请输入字段类型"></el-input>
+                            v-model="scope.row.dataField"
+                            placeholder="请输入目标值"></el-input>
                   <div v-else
-                       class="txt">{{scope.row.fieldType}}</div>
+                       class="txt">{{scope.row.dataField}}</div>
                 </template>
               </el-table-column>
-              <el-table-column prop="fieldFormat"
-                               label="字段格式"
+              <el-table-column prop="keyValue"
+                               label="关键字值"
                                align="center">
                 <template slot-scope="scope">
                   <el-input v-if="scope.row.isEdit"
                             class="item"
-                            v-model="scope.row.fieldFormat"
-                            placeholder="请输入字段格式"></el-input>
+                            v-model="scope.row.keyValue"></el-input>
                   <div v-else
-                       class="txt">{{scope.row.fieldFormat}}</div>
+                       class="txt">{{scope.row.keyValue}}</div>
+                </template>
+              </el-table-column>
+              <el-table-column prop="groupByType"
+                               label="聚合方式"
+                               align="center">
+                <template slot-scope="scope">
+                  <el-select value="scope.row.groupByType"
+                             v-model="scope.row.groupByType">
+                    <el-option label="最大值"
+                               value="max"></el-option>
+                    <el-option label="最小值"
+                               value="min"></el-option>
+                  </el-select>
                 </template>
               </el-table-column>
               <el-table-column fixed="right"
@@ -120,14 +166,19 @@ export default {
       data.nodeList.filter((node) => {
         if (node.id === id) {
           this.node = cloneDeep(node)
-          console.log(typeof this.node.params.fields)
-
+          if (this.node.params.groupByFields.length === 0) {
+            this.node.params.groupByFields.push({
+              isEdit: false,
+              groupByField: ''
+            })
+          }
           if (this.node.params.fields.length === 0) {
             this.node.params.fields.push({
               isEdit: false,
-              fieldName: '',
-              fieldType: '',
-              fieldFormat: ''
+              targetField: '',
+              dataField: '',
+              keyValue: '',
+              groupByType: ''
             })
           }
         }
@@ -166,27 +217,47 @@ export default {
     handleCellLeave (row, column, cell, event) {
       row.isEdit = false
     },
+    handleAddGroupByField () {
+      this.node.params.groupByFields.push({
+        isEdit: false,
+        groupByField: ''
+      })
+    },
+    handleDeleteGroupByField (row) {
+      if (this.node.params.groupByFields.length === 1) {
+        row.groupByType = ''
+        return
+      }
+      for (let i = 0; i < this.node.params.groupByFields.length; i++) {
+        if (this.node.params.groupByFields[i].groupByField === row.groupByField) {
+          this.node.params.groupByFields.splice(i, 1)
+          break
+        }
+      }
+    },
     handleAddField () {
       this.node.params.fields.push({
         isEdit: false,
-        fieldName: '',
-        fieldType: '',
-        fieldFormat: ''
+        targetField: '',
+        dataField: '',
+        keyValue: '',
+        groupByType: ''
       })
     },
     handleDelete (row) {
       if (this.node.params.fields.length === 1) {
-        row.isEdit = false
-        row.fieldName = ''
-        row.fieldType = ''
-        row.fieldFormat = ''
+        row.targetField = ''
+        row.dataField = ''
+        row.keyValue = ''
+        row.groupByType = ''
         return
       }
-      this.node.params.fields.forEach(element => {
-        if (element.src === row.src && element.dest === row.dest) {
-          this.node.params.fields.splice(this.node.params.fields.indexOf(element), 1)
+      for (let i = 0; i < this.node.params.fields.length; i++) {
+        if (this.node.params.fields[i].targetField === row.targetField) {
+          this.node.params.fields.splice(i, 1)
+          return
         }
-      })
+      }
     }
   }
 }

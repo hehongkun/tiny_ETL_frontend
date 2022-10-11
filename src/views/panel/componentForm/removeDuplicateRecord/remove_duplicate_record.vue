@@ -2,62 +2,31 @@
   <div>
     <div class="ef-node-form">
       <div class="ef-node-form-header">
-        mysql输出
+        去除重复记录
       </div>
       <div class="ef-node-form-body">
         <el-form :model="node"
                  ref="dataForm"
-                 label-width="80px"
+                 label-width="160px"
                  v-show="type === 'node'">
           <el-form-item label="名称">
             <el-input v-model="node.name"></el-input>
           </el-form-item>
-          <el-form-item label="主机">
-            <el-input v-model="node.params.host"></el-input>
-          </el-form-item>
-          <el-form-item label="端口">
-            <el-input v-model="node.params.port"></el-input>
-          </el-form-item>
-          <el-form-item label="用户名">
-            <el-input v-model="node.params.username"></el-input>
-          </el-form-item>
-          <el-form-item label="密码">
-            <el-input v-model="node.params.password"></el-input>
-          </el-form-item>
-          <el-form-item label="数据库">
-            <el-input v-model="node.params.database"></el-input>
-          </el-form-item>
-          <el-form-item label="表">
-            <el-input v-model="node.params.table"></el-input>
-          </el-form-item>
-          <h2>字段映射</h2>
+          <h2>比较字段</h2>
           <div>
-            <el-table :data="node.params.fieldMappings"
+            <el-table :data="node.params.fields"
                       size="mini"
                       @cell-mouse-enter="handleCellEnter"
                       @cell-mouse-leave="handleCellLeave">
-              <el-table-column prop="srcField"
-                               label="源字段"
+              <el-table-column prop="field"
+                               label="字段名称"
                                align="center">
                 <template slot-scope="scope">
                   <el-input v-if="scope.row.isEdit"
                             class="item"
-                            v-model="scope.row.srcField"
-                            placeholder="请输入源字段"></el-input>
+                            v-model="scope.row.field"></el-input>
                   <div v-else
-                       class="txt">{{scope.row.srcField}}</div>
-                </template>
-              </el-table-column>
-              <el-table-column prop="destField"
-                               label="目标字段"
-                               align="center">
-                <template slot-scope="scope">
-                  <el-input v-if="scope.row.isEdit"
-                            class="item"
-                            v-model="scope.row.destField"
-                            placeholder="请输入目标字段"></el-input>
-                  <div v-else
-                       class="txt">{{scope.row.destField}}</div>
+                       class="txt">{{scope.row.field}}</div>
                 </template>
               </el-table-column>
               <el-table-column fixed="right"
@@ -128,12 +97,10 @@ export default {
         if (node.id === id) {
           this.node = cloneDeep(node)
           console.log(this.node.params)
-
-          if (this.node.params.fieldMappings.length === 0) {
-            this.node.params.fieldMappings.push({
+          if (this.node.params.fields.length === 0) {
+            this.node.params.fields.push({
               isEdit: false,
-              srcField: '',
-              destField: ''
+              field: ''
             })
           }
         }
@@ -173,21 +140,19 @@ export default {
       row.isEdit = false
     },
     handleAddField () {
-      this.node.params.fieldMappings.push({
+      this.node.params.fields.push({
         isEdit: false,
-        srcField: '',
-        destField: ''
+        field: ''
       })
     },
     handleDelete (row) {
-      if (this.node.params.fieldMappings.length === 1) {
-        row.srcField = ''
-        row.destField = ''
+      if (this.node.params.fields.length === 1) {
+        row.field = ''
         return
       }
-      this.node.params.fieldMappings.forEach(element => {
-        if (element.srcField === row.srcField && element.destField === row.destField) {
-          this.node.params.fieldMappings.splice(this.node.params.fieldMappings.indexOf(element), 1)
+      this.node.params.fields.forEach(element => {
+        if (element.field === row.field) {
+          this.node.params.fields.splice(this.node.params.fields.indexOf(element), 1)
         }
       })
     }

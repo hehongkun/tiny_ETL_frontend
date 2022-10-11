@@ -59,6 +59,7 @@ export default {
             'password': this.loginForm.loginPassword
           }
           postAction('/user/login', params).then((res) => {
+            console.log(res)
             if (res.data.success) {
               // 登录成功，跳转页面
               console.log(res)
@@ -66,7 +67,7 @@ export default {
               localStorage.setItem('userId', res.data.user.Id)
               this.$router.push('panel')
             } else {
-              this.$message.error(res.data.data)
+              this.$message.error(res.data)
             }
           })
         } else {

@@ -14,6 +14,13 @@ import jsonInput from './jsonInput/json_input.vue'
 import mysqlInput from './mysqlInput/mysql_input.vue'
 import mysqlOutput from './mysqlOutput/mysql_output.vue'
 import changeFieldType from './changeFieldType/change_field_type.vue'
+import valueMapping from './valueMapping/value_mapping.vue'
+import cutString from './cutString/cut_string.vue'
+import replaceString from './replaceString/replace_string.vue'
+import removeDuplicateRecord from './removeDuplicateRecord/remove_duplicate_record.vue'
+import columnToRow from './columnToRow/column_to_row.vue'
+import fieldSelect from './fieldSelect/field_select.vue'
+import rowToColumn from './rowToColumn/rowToColumn'
 
 export default {
   data () {
@@ -45,7 +52,14 @@ export default {
     mysqlInput,
     jsonInput,
     mysqlOutput,
-    changeFieldType
+    changeFieldType,
+    valueMapping,
+    cutString,
+    replaceString,
+    removeDuplicateRecord,
+    columnToRow,
+    fieldSelect,
+    rowToColumn
   },
   methods: {
     /**
