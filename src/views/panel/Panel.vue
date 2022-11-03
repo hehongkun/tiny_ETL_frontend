@@ -8,7 +8,9 @@
         <div class="ef-tooltar">
           <div style="float:left">
             <el-tag type="primary"
-                    :underline="false">{{hasTaskInfo ? data.name : "null"}}</el-tag>
+                    :underline="false"
+                    @click="editTaskName">{{ hasTaskInfo ? data.name : 'null' }}
+            </el-tag>
             <el-divider direction="vertical"></el-divider>
             <el-button type="text"
                        icon="el-icon-video-play"
@@ -24,13 +26,15 @@
                        round
                        icon="el-icon-document"
                        @click="dataInfo"
-                       size="mini">流程信息</el-button>
+                       size="mini">流程信息
+            </el-button>
             <el-button type="info"
                        plain
                        round
                        icon="el-icon-document"
                        @click="openHelp"
-                       size="mini">帮助</el-button>
+                       size="mini">帮助
+            </el-button>
           </div>
           <template>
             <div style="float: right;margin-right: 5px"
@@ -43,7 +47,8 @@
                          @contextmenu.prevent.native="openMenu($event,task.Id)"
                          @click="loadData(task)"
                          icon="el-icon-refresh"
-                         size="mini">{{ task.Name }}</el-button>
+                         size="mini">{{ task.Name }}
+              </el-button>
             </div>
           </template>
           <div style="float: right;margin-right: 5px">
@@ -51,13 +56,15 @@
                        plain
                        type="primary"
                        round
-                       @click="addTask">新建任务</el-button>
+                       @click="addTask">新建任务
+            </el-button>
             <el-button type="primary"
                        plain
                        round
                        icon="el-icon-document"
                        @click="openFilesDialog"
-                       size="mini">文件库</el-button>
+                       size="mini">文件库
+            </el-button>
           </div>
         </div>
       </el-col>
@@ -125,7 +132,7 @@ import draggable from 'vuedraggable'
 // import { jsPlumb } from 'jsplumb'
 // 使用修改后的jsplumb
 import './js/jsplumb'
-import { easyFlowMixin } from '@/views/panel/js/mixins'
+import {easyFlowMixin} from '@/views/panel/js/mixins'
 import flowNode from '@/views/panel/node'
 import nodeMenu from '@/views/panel/componentMenu/component_menu'
 import TaskData from '@/views/panel/taskData/task_data'
@@ -135,9 +142,9 @@ import lodash from 'lodash'
 import TaskForm from '@/views/panel/taskForm/task_form'
 import UserFiles from '@/views/panel/userFiles/user_files.vue'
 // eslint-disable-next-line no-unused-vars
-import { ForceDirected } from './js/force-directed'
-import { getAction, postAction } from '@/api/manage'
-import { axios } from '@/utils/request'
+import {ForceDirected} from './js/force-directed'
+import {getAction, postAction} from '@/api/manage'
+import {axios} from '@/utils/request'
 
 export default {
   name: 'panel',
@@ -299,7 +306,7 @@ export default {
           let from = evt.source.id
           let to = evt.target.id
           if (this.loadEasyFlowFinish) {
-            this.data.lineList.push({ from: from, to: to })
+            this.data.lineList.push({from: from, to: to})
           }
         })
 
@@ -491,11 +498,11 @@ export default {
       }
     },
     /**
-* 拖拽结束后添加新的节点
-* @param evt
-* @param nodeMenu 被添加的节点对象
-* @param mousePosition 鼠标拖拽结束的坐标
-*/
+     * 拖拽结束后添加新的节点
+     * @param evt
+     * @param nodeMenu 被添加的节点对象
+     * @param mousePosition 鼠标拖拽结束的坐标
+     */
     addNode (evt, nodeMenu, mousePosition) {
       var screenX = evt.originalEvent.clientX
       var screenY = evt.originalEvent.clientY
@@ -544,8 +551,8 @@ export default {
         state: null
       }
       /**
-* 这里可以进行业务判断、是否能够添加该节点
-*/
+       * 这里可以进行业务判断、是否能够添加该节点
+       */
       this.data.nodeList.push(node)
       this.$nextTick(function () {
         this.jsPlumb.makeSource(nodeId, this.jsplumbSourceOptions)
@@ -560,9 +567,9 @@ export default {
       })
     },
     /**
-* 删除节点
-* @param nodeId 被删除节点的ID
-*/
+     * 删除节点
+     * @param nodeId 被删除节点的ID
+     */
     deleteNode (nodeId) {
       this.$confirm('确定要删除节点?', '提示', {
         confirmButtonText: '确定',
@@ -571,8 +578,8 @@ export default {
         closeOnClickModal: false
       }).then(() => {
         /**
-        * 这里需要进行业务判断，是否可以删除
-        */
+         * 这里需要进行业务判断，是否可以删除
+         */
         this.data.nodeList = this.data.nodeList.filter(function (node) {
           if (node.id === nodeId) {
             // 伪删除，将节点隐藏，否则会导致位置错位
@@ -641,13 +648,6 @@ export default {
             this.jsPlumbInit()
           })
         })
-      })
-    },
-    // 创建一个新的转换任务
-    addTask () {
-      this.taskFormVisible = true
-      this.$nextTick(() => {
-        this.$refs.taskForm.dialogVisible = true
       })
     },
     loadData (task) {
@@ -723,6 +723,24 @@ export default {
       console.log(data)
       postAction('/task/run', data, (res) => {
         console.log(res)
+      })
+    },
+    // 创建一个新的转换任务
+    addTask () {
+      this.taskFormVisible = true
+      this.$nextTick(() => {
+        this.$refs.taskForm.dialogVisible = true
+        this.$refs.taskForm.edit = false
+      })
+    },
+    editTaskName () {
+      this.taskFormVisible = true
+      this.$nextTick(() => {
+        this.$refs.taskForm.dialogVisible = true
+        this.$refs.taskForm.edit = true
+        this.$refs.taskForm.task.data = this.data
+        this.$refs.taskForm.task.id = this.data.id
+        this.$refs.taskForm.task.name = this.data.name
       })
     }
   }

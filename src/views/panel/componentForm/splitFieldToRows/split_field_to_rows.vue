@@ -1,37 +1,46 @@
 <template>
   <div>
-    <div class="ef-node-form">
+    <div style="width: auto">
       <div class="ef-node-form-header">
-        mysql输入
+        列拆分为多行
       </div>
-      <div class="ef-node-form-body">
+      <div class="ef-node-form-body" style="display: inline-flex">
         <el-form :model="node"
                  ref="dataForm"
-                 label-width="80px"
+                 label-width="200px"
                  v-show="type === 'node'">
-          <el-form-item label="名称">
-            <el-input v-model="node.name"></el-input>
+          <el-form-item label="要拆分的字段">
+            <el-input v-model="node.params.field"></el-input>
           </el-form-item>
-          <el-form-item label="主机">
-            <el-input v-model="node.params.host"></el-input>
+          <el-form-item label="分隔符">
+            <el-input v-model="node.params.separator"></el-input>
           </el-form-item>
-          <el-form-item label="端口">
-            <el-input v-model="node.params.port"></el-input>
+          <el-form-item label="分隔符是正则表达式">
+            <el-switch
+            v-model="node.params.isRegexp"
+            active-color="#13ce66"
+            inactive-color="#f1f3f4">
+          </el-switch>
           </el-form-item>
-          <el-form-item label="用户名">
-            <el-input v-model="node.params.username"></el-input>
+          <el-form-item label="新字段名">
+            <el-input v-model="node.params.newField"></el-input>
           </el-form-item>
-          <el-form-item label="密码">
-            <el-input v-model="node.params.password"></el-input>
+          <el-form-item label="输出中包含行号">
+            <el-switch
+              v-model="node.params.generateRowId"
+              active-color="#13ce66"
+              inactive-color="#f1f3f4">
+            </el-switch>
           </el-form-item>
-          <el-form-item label="数据库">
-            <el-input v-model="node.params.database"></el-input>
+          <el-form-item label="行号字段">
+            <el-input v-model="node.params.rowIdField"></el-input>
           </el-form-item>
-          <el-form-item label="表">
-            <el-input v-model="node.params.table"></el-input>
-          </el-form-item>
-          <el-form-item label="执行语句">
-            <el-input v-model="node.params.sql"></el-input>
+          <el-form-item label="重置行号">
+            <el-switch
+              v-model="node.params.resetRowId"
+              active-color="#13ce66"
+              inactive-color="#f1f3f4">
+            </el-switch>
           </el-form-item>
           <el-form-item>
             <el-button icon="el-icon-close"

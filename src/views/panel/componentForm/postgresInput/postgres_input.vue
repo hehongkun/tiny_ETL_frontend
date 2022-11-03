@@ -2,7 +2,7 @@
   <div>
     <div class="ef-node-form">
       <div class="ef-node-form-header">
-        mysql输入
+        postgres输入
       </div>
       <div class="ef-node-form-body">
         <el-form :model="node"

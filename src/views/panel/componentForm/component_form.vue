@@ -20,7 +20,27 @@ import replaceString from './replaceString/replace_string.vue'
 import removeDuplicateRecord from './removeDuplicateRecord/remove_duplicate_record.vue'
 import columnToRow from './columnToRow/column_to_row.vue'
 import fieldSelect from './fieldSelect/field_select.vue'
-import rowToColumn from './rowToColumn/rowToColumn'
+import rowToColumn from './rowToColumn/row_to_column'
+import filterNull from './filterNull/filter_null.vue'
+import filterNum from './filterNum/filter_num.vue'
+import filterDate from './filterDate/filter_date.vue'
+import filterString from './filterString/filter_string.vue'
+import fillNum from './fillNum/fillNum'
+import fillDate from './fillDate/fillDate'
+import fillString from './fillString/fillString'
+import filterNumRange from './filterNumRange/filter_num_range'
+import filterDateRange from './filterDateRange/filter_date_range'
+import addField from './addField/add_field'
+import deleteField from './deleteField/delete_field'
+import getFieldLength from './getFieldLength/get_field_length'
+import addSequence from './addSequence/add_sequence'
+import rowFlatten from './rowFlatten/row_flatten'
+import splitFieldToRows from './splitFieldToRows/split_field_to_rows'
+import setFieldValue from './setFieldValue/set_field_value'
+import changeSequenceByValue from './changeSequenceByValue/change_sequence_by_value'
+import postgresInput from './postgresInput/postgres_input.vue'
+import postgresOutput from './postgresOutput/postgres_output.vue'
+import leftJoin from './leftJoin/left_join.vue'
 
 export default {
   data () {
@@ -59,7 +79,27 @@ export default {
     removeDuplicateRecord,
     columnToRow,
     fieldSelect,
-    rowToColumn
+    rowToColumn,
+    filterNull,
+    filterNum,
+    filterDate,
+    filterString,
+    fillNum,
+    fillDate,
+    fillString,
+    setFieldValue,
+    filterNumRange,
+    filterDateRange,
+    addField,
+    deleteField,
+    getFieldLength,
+    addSequence,
+    rowFlatten,
+    splitFieldToRows,
+    changeSequenceByValue,
+    postgresInput,
+    postgresOutput,
+    leftJoin
   },
   methods: {
     /**

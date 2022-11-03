@@ -2,36 +2,27 @@
   <div>
     <div class="ef-node-form">
       <div class="ef-node-form-header">
-        mysql输入
+        增加序列字段
       </div>
       <div class="ef-node-form-body">
         <el-form :model="node"
                  ref="dataForm"
-                 label-width="80px"
+                 label-width="100px"
                  v-show="type === 'node'">
           <el-form-item label="名称">
             <el-input v-model="node.name"></el-input>
           </el-form-item>
-          <el-form-item label="主机">
-            <el-input v-model="node.params.host"></el-input>
+          <el-form-item label="序列字段名称">
+            <el-input v-model="node.params.field"></el-input>
           </el-form-item>
-          <el-form-item label="端口">
-            <el-input v-model="node.params.port"></el-input>
+          <el-form-item label="起始值">
+            <el-input v-model="node.params.startNum"></el-input>
           </el-form-item>
-          <el-form-item label="用户名">
-            <el-input v-model="node.params.username"></el-input>
+          <el-form-item label="增长步长">
+            <el-input v-model="node.params.step"></el-input>
           </el-form-item>
-          <el-form-item label="密码">
-            <el-input v-model="node.params.password"></el-input>
-          </el-form-item>
-          <el-form-item label="数据库">
-            <el-input v-model="node.params.database"></el-input>
-          </el-form-item>
-          <el-form-item label="表">
-            <el-input v-model="node.params.table"></el-input>
-          </el-form-item>
-          <el-form-item label="执行语句">
-            <el-input v-model="node.params.sql"></el-input>
+          <el-form-item label="序列最大值">
+            <el-input v-model="node.params.maxNum"></el-input>
           </el-form-item>
           <el-form-item>
             <el-button icon="el-icon-close"
@@ -86,7 +77,6 @@ export default {
       data.nodeList.filter((node) => {
         if (node.id === id) {
           this.node = cloneDeep(node)
-          console.log(this.node)
         }
       })
     },

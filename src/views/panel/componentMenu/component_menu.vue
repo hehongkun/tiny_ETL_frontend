@@ -125,6 +125,25 @@ export default {
                 username: '',
                 password: '',
                 database: '',
+                table: '',
+                sql: ''
+              },
+              // 自定义覆盖样式
+              style: {}
+            },
+            {
+              id: '17',
+              type: 'postgresInput',
+              name: 'postgres表输入',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+                host: '',
+                port: '',
+                username: '',
+                password: '',
+                database: '',
+                table: '',
                 sql: ''
               },
               // 自定义覆盖样式
@@ -178,6 +197,23 @@ export default {
               style: {}
             }, {
               id: '24',
+              type: 'postgresOutput',
+              name: 'postgres表输出',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+                host: '',
+                port: '',
+                username: '',
+                password: '',
+                database: '',
+                table: '',
+                fieldMappings: []
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
+              id: '25',
               type: 'jsonOutput',
               name: 'json文件输出',
               ico: 'el-icon-caret-right',
@@ -192,7 +228,7 @@ export default {
         {
           id: '3',
           type: 'group',
-          name: '转换',
+          name: '数据转换',
           ico: 'el-icon-video-pause',
           open: true,
           children: [
@@ -211,7 +247,7 @@ export default {
               // 自定义覆盖样式
               style: {}
             }, {
-              id: '33',
+              id: '32',
               type: 'columnToRow',
               name: '列转行',
               ico: 'el-icon-caret-right',
@@ -225,40 +261,20 @@ export default {
               // 自定义覆盖样式
               style: {}
             }, {
+              id: '33',
+              type: 'rowToColumn',
+              name: '行转列',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+                keyField: '',
+                transformField: '',
+                fields: []
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
               id: '34',
-              type: 'cutString',
-              name: '剪切字符串',
-              ico: 'el-icon-caret-right',
-              // 组件参数
-              params: {
-                fields: []
-              },
-              // 自定义覆盖样式
-              style: {}
-            }, {
-              id: '35',
-              type: 'removeDuplicateRecord',
-              name: '去除重复记录',
-              ico: 'el-icon-caret-right',
-              // 组件参数
-              params: {
-                fields: []
-              },
-              // 自定义覆盖样式
-              style: {}
-            }, {
-              id: '36',
-              type: 'replaceString',
-              name: '字符串替换',
-              ico: 'el-icon-caret-right',
-              // 组件参数
-              params: {
-                fields: []
-              },
-              // 自定义覆盖样式
-              style: {}
-            }, {
-              id: '37',
               type: 'changeFieldType',
               name: '字段类型转换',
               ico: 'el-icon-caret-right',
@@ -269,7 +285,7 @@ export default {
               // 自定义覆盖样式
               style: {}
             }, {
-              id: '38',
+              id: '35',
               type: 'fieldSelect',
               name: '字段选择',
               ico: 'el-icon-caret-right',
@@ -280,14 +296,260 @@ export default {
               // 自定义覆盖样式
               style: {}
             }, {
-              id: '39',
-              type: 'rowToColumn',
-              name: '行转列',
+              id: '36',
+              type: 'addField',
+              name: '添加字段',
               ico: 'el-icon-caret-right',
               // 组件参数
               params: {
-                keyField: '',
-                transformField: '',
+                fields: []
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
+              id: '37',
+              type: 'deleteField',
+              name: '删除字段',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+                fields: []
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
+              id: '38',
+              type: 'getFieldLength',
+              name: '获取字段长度',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+                fields: []
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
+              id: '39',
+              type: 'addSequence',
+              name: '增加序列',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+                startNum: '',
+                step: '',
+                maxNum: '',
+                field: ''
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
+              id: '310',
+              type: 'rowFlatten',
+              name: '行扁平化',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+                flattenField: '',
+                fields: []
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
+              id: '311',
+              type: 'splitFieldToRows',
+              name: '列差分为多行',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+                field: '',
+                separator: '',
+                isRegexp: false,
+                newField: '',
+                generateRowId: false,
+                rowIdField: '',
+                resetRowId: false
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
+              id: '312',
+              type: 'setFieldValue',
+              name: '设置字段值',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+                field: '',
+                startNum: '',
+                step: '',
+                fields: []
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
+              id: '313',
+              type: 'changeSequenceByValue',
+              name: '根据字段值改变序列',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+                field: '',
+                startNum: '',
+                step: '',
+                fields: []
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
+              id: '314',
+              type: 'leftJoin',
+              name: '左连接',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+                first: '',
+                second: '',
+                fields: []
+              },
+              // 自定义覆盖样式
+              style: {}
+            }
+          ]
+        },
+        {
+          id: '4',
+          type: 'group',
+          name: '数据清洗',
+          ico: 'el-icon-video-pause',
+          open: true,
+          children: [
+            {
+              id: '41',
+              type: 'cutString',
+              name: '剪切字符串',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+                fields: []
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
+              id: '42',
+              type: 'removeDuplicateRecord',
+              name: '去除重复记录',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+                fields: []
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
+              id: '43',
+              type: 'replaceString',
+              name: '字符串替换',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+                fields: []
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
+              id: '44',
+              type: 'filterNull',
+              name: '空值过滤',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+                fields: []
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
+              id: '45',
+              type: 'filterNum',
+              name: '数值过滤',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+                fields: []
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
+              id: '46',
+              type: 'filterDate',
+              name: '日期过滤',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+                fields: []
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
+              id: '47',
+              type: 'filterString',
+              name: '字符串过滤',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+                fields: []
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
+              id: '48',
+              type: 'fillNum',
+              name: '缺失数值填充',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+                fields: []
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
+              id: '49',
+              type: 'fillDate',
+              name: '缺失日期填充',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+                fields: []
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
+              id: '410',
+              type: 'fillString',
+              name: '缺失字符串填充',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+                fields: []
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
+              id: '411',
+              type: 'filterNumRange',
+              name: '数值范围过滤',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
+                fields: []
+              },
+              // 自定义覆盖样式
+              style: {}
+            }, {
+              id: '412',
+              type: 'filterDateRange',
+              name: '日期范围过滤',
+              ico: 'el-icon-caret-right',
+              // 组件参数
+              params: {
                 fields: []
               },
               // 自定义覆盖样式
